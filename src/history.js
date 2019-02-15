@@ -362,6 +362,8 @@ function histTransaction(history, state, dispatch, redo) {
   if (!pop) return
   logError('before pop')
   logError(pop.selection)
+  logError(pop.transform.doc.nodeSize)
+  logError(pop.transform.doc)
   let selection = pop.selection.resolve(pop.transform.doc)
   let added = (redo ? history.done : history.undone).addTransform(pop.transform, state.selection.getBookmark(),
                                                                   histOptions, preserveItems)
