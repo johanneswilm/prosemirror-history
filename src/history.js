@@ -82,6 +82,7 @@ class Branch {
     let addAfter = [], addBefore = []
     let maybe = false
     let stepCountBefore, stepCountAfter
+    const itemsLength = this.items.length
 
     this.items.forEach((item, i) => {
       if (!item.step) {
@@ -123,6 +124,8 @@ class Branch {
       }
       logError(JSON.stringify(errorReport))
     }, this.items.length, 0)
+
+    logError(JSON.stringify({remaining, transform, selection, itemsLength}))
 
     return {remaining, transform, selection}
   }
