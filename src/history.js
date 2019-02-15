@@ -83,8 +83,11 @@ class Branch {
     let maybe = false
     let stepCountBefore, stepCountAfter
     const itemsLength = this.items.length
+    const errorReports = []
 
     this.items.forEach((item, i) => {
+      const errorReport = {}
+      errorReports.push(errorReport)
       if (!item.step) {
         if (!remap) {
           remap = this.remapping(end, i + 1)
@@ -96,6 +99,7 @@ class Branch {
       }
 
       if (remap) {
+        errorReport.remap = remap
         addBefore.push(new Item(item.map))
         let step = item.step.map(remap.slice(mapFrom)), map
 
@@ -106,26 +110,22 @@ class Branch {
         mapFrom--
         if (map) remap.appendMap(map, mapFrom)
       } else {
-        stepCountBefore = transform.steps.length
+        errorReport.stepCountBefore = transform.steps.length
         transform.maybeStep(item.step)
-        stepCountAfter = transform.steps.length
-        maybe = true
+        errorReport.stepCountAfter = transform.steps.length
+        errorReport.maybe = true
       }
 
       if (item.selection) {
+        errorReport.itemSelectionHead = item.selection.head
+        errorReport.itemSelectionAnchor = item.selection.anchor
         selection = remap ? item.selection.map(remap.slice(mapFrom)) : item.selection
         remaining = new Branch(this.items.slice(0, end).append(addBefore.reverse().concat(addAfter)), this.eventCount - 1)
         return false
       }
-      const errorReport = {maybe, stepCountBefore, stepCountAfter, remap}
-      if (item.selection) {
-        errorReport.itemSelectionHead = item.selection.head
-        errorReport.itemSelectionAnchor = item.selection.anchor
-      }
-      logError(JSON.stringify(errorReport))
     }, this.items.length, 0)
 
-    logError(JSON.stringify({remaining, transform, selection, itemsLength}))
+    logError(JSON.stringify({remaining, itemsLength, errorReports}))
 
     return {remaining, transform, selection}
   }
