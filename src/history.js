@@ -116,7 +116,12 @@ class Branch {
         remaining = new Branch(this.items.slice(0, end).append(addBefore.reverse().concat(addAfter)), this.eventCount - 1)
         return false
       }
-      logError(JSON.stringify({maybe, stepCountBefore, stepCountAfter, itemSelectionAnchor: item.selection.anchor, itemSelectionHead: item.selection.head, remap}))
+      const errorReport = {maybe, stepCountBefore, stepCountAfter, remap}
+      if (item.selection) {
+        errorReport.itemSelectionHead = item.selection.head
+        errorReport.itemSelectionAnchor = item.selection.anchor
+      }
+      logError(JSON.stringify(errorReport))
     }, this.items.length, 0)
 
     return {remaining, transform, selection}
