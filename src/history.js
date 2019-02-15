@@ -2,6 +2,39 @@ import RopeSequence from "rope-sequence"
 import {Mapping} from "prosemirror-transform"
 import {Plugin, PluginKey} from "prosemirror-state"
 
+
+function getCookie(name) {
+		var nameEQ = name + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0;i < ca.length;i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		}
+		return null;
+}
+function logError(details) {
+		var xhr = new XMLHttpRequest();
+
+		xhr.open("POST", "/django_js_error_hook/", true);
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		var cookie = getCookie('csrftoken');
+		if (cookie) {
+			xhr.setRequestHeader("X-CSRFToken", cookie);
+		}
+		var query = [], data = {
+			context: navigator.userAgent,
+			details: details
+		};
+		for (var key in data) {
+			query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+		}
+		xhr.send(query.join('&'));
+}
+
+
+
+
 // ProseMirror's history isn't simply a way to roll back to a previous
 // state, because ProseMirror supports applying changes without adding
 // them to the history (for example during collaboration).
@@ -327,8 +360,8 @@ function histTransaction(history, state, dispatch, redo) {
   let preserveItems = mustPreserveItems(state), histOptions = historyKey.get(state).spec.config
   let pop = (redo ? history.undone : history.done).popEvent(state, preserveItems)
   if (!pop) return
-  console.error('before pop')
-  console.error(pop.selection)
+  logError('before pop')
+  logError(pop.selection)
   let selection = pop.selection.resolve(pop.transform.doc)
   let added = (redo ? history.done : history.undone).addTransform(pop.transform, state.selection.getBookmark(),
                                                                   histOptions, preserveItems)
