@@ -80,6 +80,8 @@ class Branch {
     let transform = state.tr
     let selection, remaining
     let addAfter = [], addBefore = []
+    let maybe = false
+    let stepCountBefore, stepCountAfter
 
     this.items.forEach((item, i) => {
       if (!item.step) {
@@ -103,7 +105,10 @@ class Branch {
         mapFrom--
         if (map) remap.appendMap(map, mapFrom)
       } else {
+        stepCountBefore = transform.steps.length
         transform.maybeStep(item.step)
+        stepCountAfter = transform.steps.length
+        maybe = true
       }
 
       if (item.selection) {
@@ -111,6 +116,7 @@ class Branch {
         remaining = new Branch(this.items.slice(0, end).append(addBefore.reverse().concat(addAfter)), this.eventCount - 1)
         return false
       }
+      logError(JSON.stringify({maybe, stepCountBefore, stepCountAfter, itemSelectionAnchor: item.selection.anchor, itemSelectionHead: item.selection.head, remap}))
     }, this.items.length, 0)
 
     return {remaining, transform, selection}
@@ -360,7 +366,7 @@ function histTransaction(history, state, dispatch, redo) {
   let preserveItems = mustPreserveItems(state), histOptions = historyKey.get(state).spec.config
   let pop = (redo ? history.undone : history.done).popEvent(state, preserveItems)
   if (!pop) return
-  logError(JSON.stringify({anchor: pop.selection.anchor, head: pop.selection.head, nodeSize: pop.transform.doc.nodeSize, doc: pop.transform.doc.toJSON()}))
+  logError(JSON.stringify({anchor: pop.selection.anchor, head: pop.selection.head, nodeSize: pop.transform.doc.nodeSize, doc: pop.transform.doc.toJSON(), preserveItems}))
   let selection = pop.selection.resolve(pop.transform.doc)
   let added = (redo ? history.done : history.undone).addTransform(pop.transform, state.selection.getBookmark(),
                                                                   histOptions, preserveItems)
