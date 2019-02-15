@@ -360,10 +360,7 @@ function histTransaction(history, state, dispatch, redo) {
   let preserveItems = mustPreserveItems(state), histOptions = historyKey.get(state).spec.config
   let pop = (redo ? history.undone : history.done).popEvent(state, preserveItems)
   if (!pop) return
-  logError('before pop')
-  logError(pop.selection)
-  logError(pop.transform.doc.nodeSize)
-  logError(pop.transform.doc)
+  logError(JSON.stringify({anchor: pop.selection.anchor, head: pop.selection.head, nodeSize: pop.transform.doc.nodeSize, doc: pop.transform.doc.toJSON()}))
   let selection = pop.selection.resolve(pop.transform.doc)
   let added = (redo ? history.done : history.undone).addTransform(pop.transform, state.selection.getBookmark(),
                                                                   histOptions, preserveItems)
