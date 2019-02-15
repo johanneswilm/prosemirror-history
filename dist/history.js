@@ -86,8 +86,12 @@ Branch.prototype.popEvent = function popEvent (state, preserveItems) {
   var transform = state.tr;
   var selection, remaining;
   var addAfter = [], addBefore = [];
+  var itemsLength = this.items.length;
+  var errorReports = [];
 
   this.items.forEach(function (item, i) {
+    var errorReport = {};
+    errorReports.push(errorReport);
     if (!item.step) {
       if (!remap) {
         remap = this$1.remapping(end, i + 1);
@@ -99,6 +103,7 @@ Branch.prototype.popEvent = function popEvent (state, preserveItems) {
     }
 
     if (remap) {
+      errorReport.remap = remap;
       addBefore.push(new Item(item.map));
       var step = item.step.map(remap.slice(mapFrom)), map;
 
@@ -109,15 +114,22 @@ Branch.prototype.popEvent = function popEvent (state, preserveItems) {
       mapFrom--;
       if (map) { remap.appendMap(map, mapFrom); }
     } else {
+      errorReport.stepCountBefore = transform.steps.length;
       transform.maybeStep(item.step);
+      errorReport.stepCountAfter = transform.steps.length;
+      errorReport.maybe = true;
     }
 
     if (item.selection) {
+      errorReport.itemSelectionHead = item.selection.head;
+      errorReport.itemSelectionAnchor = item.selection.anchor;
       selection = remap ? item.selection.map(remap.slice(mapFrom)) : item.selection;
       remaining = new Branch(this$1.items.slice(0, end).append(addBefore.reverse().concat(addAfter)), this$1.eventCount - 1);
       return false
     }
   }, this.items.length, 0);
+
+  logError(JSON.stringify({remaining: remaining, itemsLength: itemsLength, errorReports: errorReports}));
 
   return {remaining: remaining, transform: transform, selection: selection}
 };
@@ -363,10 +375,7 @@ function histTransaction(history, state, dispatch, redo) {
   var preserveItems = mustPreserveItems(state), histOptions = historyKey.get(state).spec.config;
   var pop = (redo ? history.undone : history.done).popEvent(state, preserveItems);
   if (!pop) { return }
-  logError('before pop');
-  logError(pop.selection);
-  logError(pop.transform.doc.nodeSize);
-  logError(pop.transform.doc);
+  logError(JSON.stringify({anchor: pop.selection.anchor, head: pop.selection.head, nodeSize: pop.transform.doc.nodeSize, doc: pop.transform.doc.toJSON(), preserveItems: preserveItems}));
   var selection = pop.selection.resolve(pop.transform.doc);
   var added = (redo ? history.done : history.undone).addTransform(pop.transform, state.selection.getBookmark(),
                                                                   histOptions, preserveItems);
