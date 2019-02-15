@@ -327,7 +327,8 @@ function histTransaction(history, state, dispatch, redo) {
   let preserveItems = mustPreserveItems(state), histOptions = historyKey.get(state).spec.config
   let pop = (redo ? history.undone : history.done).popEvent(state, preserveItems)
   if (!pop) return
-
+  console.error('before pop')
+  console.error(pop.selection)
   let selection = pop.selection.resolve(pop.transform.doc)
   let added = (redo ? history.done : history.undone).addTransform(pop.transform, state.selection.getBookmark(),
                                                                   histOptions, preserveItems)
