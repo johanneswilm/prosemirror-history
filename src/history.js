@@ -95,6 +95,7 @@ class Branch {
         }
         mapFrom--
         addBefore.push(item)
+        errorReport.noItemStep = true
         return
       }
 

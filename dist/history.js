@@ -99,6 +99,7 @@ Branch.prototype.popEvent = function popEvent (state, preserveItems) {
       }
       mapFrom--;
       addBefore.push(item);
+      errorReport.noItemStep = true;
       return
     }
 
