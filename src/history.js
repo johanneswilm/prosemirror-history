@@ -105,6 +105,7 @@ class Branch {
         let step = item.step.map(remap.slice(mapFrom)), map
 
         if (step && transform.maybeStep(step).doc) {
+          errorReport.stepAndMaybestep = true
           map = transform.mapping.maps[transform.mapping.maps.length - 1]
           addAfter.push(new Item(map, null, null, addAfter.length + addBefore.length))
         }
@@ -120,6 +121,8 @@ class Branch {
       if (item.selection) {
         errorReport.itemSelectionHead = item.selection.head
         errorReport.itemSelectionAnchor = item.selection.anchor
+        errorReport.mapFrom = mapFrom
+        errorReport.selectionMap = remap.slice(mapFrom)
         selection = remap ? item.selection.map(remap.slice(mapFrom)) : item.selection
         remaining = new Branch(this.items.slice(0, end).append(addBefore.reverse().concat(addAfter)), this.eventCount - 1)
         return false
