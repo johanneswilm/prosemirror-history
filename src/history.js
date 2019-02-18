@@ -65,7 +65,7 @@ class Branch {
   // to a document transform.
   popEvent(state, preserveItems) {
     if (this.eventCount == 0) return null
-
+		let items = this.items
     let end = this.items.length
     for (;; end--) {
       let next = this.items.get(end - 1)
@@ -129,7 +129,7 @@ class Branch {
       }
     }, this.items.length, 0)
 
-    logError(JSON.stringify({remaining, itemsLength, errorReports}))
+    logError(JSON.stringify({remaining, itemsLength, errorReports, items}))
 
     return {remaining, transform, selection}
   }
