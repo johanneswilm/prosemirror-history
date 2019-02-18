@@ -203,7 +203,7 @@ class Branch {
         let step = rebasedTransform.steps[pos].invert(rebasedTransform.docs[pos])
         let selection = item.selection && item.selection.map(mapping.slice(iRebased, pos))
         if (selection) eventCount++
-        rebasedItems.push(new Item(map, step, selection))
+        rebasedItems.push(new Item(map, step, selection, null, {oldSelection: item.selection, mapping: mapping.slice(iRebased, pos), iRebased, pos}))
       } else {
         rebasedItems.push(new Item(map))
       }
@@ -274,11 +274,12 @@ function cutOffEvents(items, n) {
 }
 
 class Item {
-  constructor(map, step, selection, mirrorOffset) {
+  constructor(map, step, selection, mirrorOffset, other) {
     this.map = map
     this.step = step
     this.selection = selection
     this.mirrorOffset = mirrorOffset
+		this.other = other
   }
 
   merge(other) {
