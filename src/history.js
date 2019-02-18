@@ -65,7 +65,7 @@ class Branch {
   // to a document transform.
   popEvent(state, preserveItems) {
     if (this.eventCount == 0) return null
-		let items = this.items
+		let items = JSON.parse(JSON.stringify(this.items))
     let end = this.items.length
     for (;; end--) {
       let next = this.items.get(end - 1)
